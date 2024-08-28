@@ -7,6 +7,7 @@ defmodule Rooms.Application do
 
   @impl true
   def start(_type, _args) do
+    RoomsWeb.RoomController.init_table()
     children = [
       RoomsWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:rooms, :dns_cluster_query) || :ignore},
