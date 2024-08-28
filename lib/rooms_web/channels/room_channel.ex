@@ -5,6 +5,7 @@ defmodule RoomsWeb.RoomChannel do
   def join("room:lobby", _message, socket) do
     {:ok, socket}
   end
+
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
   @impl true
@@ -12,6 +13,7 @@ defmodule RoomsWeb.RoomChannel do
     broadcast!(socket, "new_msg", %{body: body})
     {:noreply, socket}
   end
+
   # It is also common to receive messages from the client and
   # broadcast to everyone in the current topic (room:lobby).
   @impl true
