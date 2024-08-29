@@ -11,6 +11,7 @@ defmodule RoomsWeb.UserSocket do
   # pointing to the `RoomsWeb.RoomChannel`:
   #
   channel "room:*", RoomsWeb.RoomChannel
+  channel "global:info", RoomsWeb.GlobalChannel
   #
   # To create a channel file, use the mix task:
   #
@@ -18,7 +19,6 @@ defmodule RoomsWeb.UserSocket do
   #
   # See the [`Channels guide`](https://hexdocs.pm/phoenix/channels.html)
   # for further details.
-
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

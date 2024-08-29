@@ -21,9 +21,11 @@ defmodule RoomsWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", RoomsWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", RoomsWeb do
+    pipe_through :api
+
+    resources "/rooms", RoomController, except: [:new, :edit]
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:rooms, :dev_routes) do

@@ -12,13 +12,12 @@ defmodule RoomsWeb.Endpoint do
   ]
 
   socket "/socket", RoomsWeb.UserSocket,
-   websocket: true,
-   longpoll: false
+    websocket: true,
+    longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
-
 
   # Serve at "/" the static files from "priv/static" directory.
   #
