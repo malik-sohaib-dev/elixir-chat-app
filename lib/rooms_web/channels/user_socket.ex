@@ -11,6 +11,7 @@ defmodule RoomsWeb.UserSocket do
   # pointing to the `RoomsWeb.RoomChannel`:
   #
   channel "room:*", RoomsWeb.RoomChannel
+  channel "global:info", RoomsWeb.GlobalChannel
   #
   # To create a channel file, use the mix task:
   #

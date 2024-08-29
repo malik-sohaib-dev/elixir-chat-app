@@ -12,10 +12,26 @@ let roomNameHeading = document.querySelector("#room-name");
 let deleteActiveRoomButton = document.querySelector("#delete-active-room");
 roomNameHeading.innerText = "Active Room: None";
 
+// Join the global info channel
+let globalChannel = socket.channel("global:info", {});
+globalChannel
+  .join()
+  .receive("ok", (resp) => {
+    console.log("Joined global channel successfully", resp);
+  })
+  .receive("error", (resp) => {
+    console.log("Unable to join", resp);
+  });
+
+globalChannel.on("update_room", (payload) => {
+  console.log("Room Updated:", payload.name);
+  fetchRooms();
+});
+
 deleteActiveRoomButton.addEventListener("click", () => {
   if (currentChannel) {
     let roomName = currentChannel.topic.split(":")[1];
-    fetch(`/api/rooms/${roomName}`, { 
+    fetch(`/api/rooms/${roomName}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -23,7 +39,7 @@ deleteActiveRoomButton.addEventListener("click", () => {
         console.log(data.message);
         fetchRooms();
       });
-
+    globalChannel.push("update_room", { body: roomName });
     currentChannel.leave();
     currentChannel = null;
     messagesContainer.innerHTML = "";
@@ -78,13 +94,22 @@ function fetchRooms() {
       data.rooms.forEach((room) => {
         const roomItem = document.createElement("li");
         roomItem.textContent = room;
-        roomItem.classList.add("p-4", "bg-gray-700", "rounded-lg", "shadow", "cursor-pointer", "hover:bg-blue-500", "transition-colors", "text-white");
-        
+        roomItem.classList.add(
+          "p-4",
+          "bg-gray-700",
+          "rounded-lg",
+          "shadow",
+          "cursor-pointer",
+          "hover:bg-blue-500",
+          "transition-colors",
+          "text-white"
+        );
+
         roomItem.addEventListener("click", () => {
           console.log(`Joining room: ${room}`);
           joinRoom(room);
         });
-        
+
         roomList.appendChild(roomItem);
       });
     });
@@ -105,6 +130,7 @@ roomForm.addEventListener("submit", (event) => {
       .then((response) => response.json())
       .then((data) => {
         console.log(data.message);
+        globalChannel.push("update_room", { body: newRoom });
         fetchRooms();
         roomInput.value = "";
       });
