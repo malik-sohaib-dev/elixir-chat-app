@@ -11,11 +11,11 @@ defmodule RoomsWeb.RoomController do
     rooms = :ets.tab2list(@room_table) |> Enum.map(fn {room, _} -> room end)
     json(conn, %{rooms: rooms})
   end
-
+  
   def show(conn, %{"id" => id}) do
     case :ets.lookup(@room_table, id) do
-      [{room, _}] ->
-        json(conn, %{room: room})
+      [{room, messages}] ->
+        json(conn, %{room: room, messages: messages})
 
       [] ->
         send_resp(conn, 404, "Room not found")
@@ -33,15 +33,30 @@ defmodule RoomsWeb.RoomController do
     json(conn, %{message: "Room deleted", room: id})
   end
 
-  def update(conn, %{"id" => id, "new_name" => new_name}) do
-    case :ets.lookup(@room_table, id) do
-      [{_room, messages}] ->
-        :ets.delete(@room_table, id)
-        :ets.insert(@room_table, {new_name, messages})
-        json(conn, %{message: "Room updated", room: new_name})
+  def update(room_name, message) do
+    case :ets.lookup(@room_table, room_name) do
+      [{room_name, messages}] ->
+        new_messages =
+          [message | messages]
+          # Keep only the last 20 messages
+          |> Enum.take(20)
+
+        :ets.insert(@room_table, {room_name, new_messages})
 
       [] ->
-        send_resp(conn, 404, "Room not found")
+        :error
     end
   end
+
+  # def update(conn, %{"id" => id, "new_name" => new_name}) do
+  #   case :ets.lookup(@room_table, id) do
+  #     [{_room, messages}] ->
+  #       :ets.delete(@room_table, id)
+  #       :ets.insert(@room_table, {new_name, messages})
+  #       json(conn, %{message: "Room updated", room: new_name})
+
+  #     [] ->
+  #       send_resp(conn, 404, "Room not found")
+  #   end
+  # end
 end
