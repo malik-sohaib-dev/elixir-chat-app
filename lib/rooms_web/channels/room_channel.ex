@@ -15,7 +15,8 @@ defmodule RoomsWeb.RoomChannel do
   @impl true
   def handle_in("new_msg", %{"body" => body}, socket) do
     room_name = String.split(socket.topic, ":") |> List.last()
-    IO.inspect("Sending message in : #{room_name}")
+    IO.inspect("Sending message in : #{room_name}, message: #{body}")
+    RoomsWeb.RoomController.update(room_name, body)
     broadcast!(socket, "new_msg", %{body: body})
     {:noreply, socket}
   end

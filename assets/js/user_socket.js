@@ -66,6 +66,19 @@ function joinRoom(roomName) {
     .receive("error", (resp) => {
       console.log(`Unable to join room: ${roomName}`, resp);
     });
+  
+  // Get all messages from the room
+  fetch(`/api/rooms/${roomName}`)
+    .then((response) => response.json())
+    .then((data) => {
+      data.messages.reverse().forEach((message) => {
+        let messageItem = document.createElement("p");
+        messageItem.innerText = `[Old] ${message}`;
+        messagesContainer.appendChild(messageItem);
+      });
+    }).catch((error) => {
+      console.error("Unable to fetch messages", error);
+    });
 
   currentChannel.on("new_msg", (payload) => {
     let messageItem = document.createElement("p");
@@ -82,6 +95,28 @@ chatInput.addEventListener("keypress", (event) => {
     console.log("Sending message:", chatInput.value);
     currentChannel.push("new_msg", { body: chatInput.value });
     chatInput.value = "";
+  }
+});
+
+// Event listener for creating a new room
+roomForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const newRoom = roomInput.value.trim();
+  if (newRoom) {
+    fetch("/api/rooms", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: newRoom }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+        globalChannel.push("update_room", { body: newRoom });
+        fetchRooms();
+        roomInput.value = "";
+      });
   }
 });
 
@@ -114,28 +149,6 @@ function fetchRooms() {
       });
     });
 }
-
-// Event listener for creating a new room
-roomForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const newRoom = roomInput.value.trim();
-  if (newRoom) {
-    fetch("/api/rooms", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: newRoom }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.message);
-        globalChannel.push("update_room", { body: newRoom });
-        fetchRooms();
-        roomInput.value = "";
-      });
-  }
-});
 
 // Initial room list fetch on page load
 fetchRooms();
