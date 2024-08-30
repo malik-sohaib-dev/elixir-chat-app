@@ -1,4 +1,4 @@
-# Rooms
+# Chat APP
 
 To start your Phoenix server:
 
